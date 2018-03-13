@@ -5,8 +5,11 @@ const app = express();
 const bodyParser = require('body-parser')
 const morgan = require('morgan');
 const nunjucks = require('nunjucks');
+const models = require('./models');
 express.static('./public');
 
+
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
@@ -22,7 +25,12 @@ app.get('/', (req, res, next) => {
   res.render('index');
 })
 
-app.listen(3000,
-  console.log('Listening on Port 3000')
-  );
+models.db.sync() //models.db.sync({force: true})
+.then(() => {
+    console.log('All tables created!');
+    app.listen(3000, () =>  {
+        console.log('Server is listening on port 3000');
+    });
+})
+.catch(console.error.bind(console));
 
